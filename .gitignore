@@ -1,0 +1,3 @@
+ignored/
+*/.idea/
+*/cmake-build-debug/
