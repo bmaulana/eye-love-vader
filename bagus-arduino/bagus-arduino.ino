@@ -8,7 +8,7 @@
 grideye  GE_GridEyeSensor;
 
 /*******************************************************************************
-  method
+  methods
  ******************************************************************************/
 void GE_SourceDataInitialize( short *data ) {
   for ( int i = 0; i < SNR_SZ; i++ ) {
@@ -40,14 +40,12 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   
-  // Buffers for raw data
-  UCHAR aucThsBuf[GRIDEYE_REGSZ_THS];
-  UCHAR aucTmpBuf[GRIDEYE_REGSZ_TMP];
-
   // Get thermistor register value
+  UCHAR aucThsBuf[GRIDEYE_REGSZ_THS];
   GE_GridEyeSensor.bAMG_PUB_I2C_Read(GRIDEYE_REG_THS00, GRIDEYE_REGSZ_THS, aucThsBuf);
 
   // Get temperature register value
+  UCHAR aucTmpBuf[GRIDEYE_REGSZ_TMP];
   GE_GridEyeSensor.bAMG_PUB_I2C_Read(GRIDEYE_REG_TMP00, GRIDEYE_REGSZ_TMP, aucTmpBuf);
 
   // Convert raw values to short
