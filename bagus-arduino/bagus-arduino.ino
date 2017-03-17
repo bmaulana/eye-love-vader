@@ -9,7 +9,13 @@
 /*******************************************************************************
   variable value definition
 *******************************************************************************/
-grideye  GE_GridEyeSensor;
+#define   MAIN_DELAY        1000
+#define   INIT_TIME         60
+#define   TEMP_THRESHOLD    5.0
+#define   PIXELS_THRESHOLD  32
+
+grideye   GE_GridEyeSensor;
+float     averageTemp[SNR_SZ]; 
 
 int status = WL_IDLE_STATUS;
 char ssid[] = "pi"; //  your network SSID (name)
@@ -18,13 +24,13 @@ char pass[] = "amirdhada";    // your network password (use for WPA, or use as k
 /*******************************************************************************
   methods
  ******************************************************************************/
-void GE_SourceDataInitialize(short *data) {
+void initShort(short *data) {
   for ( int i = 0; i < SNR_SZ; i++ ) {
     data[i] = 0;
   }
 }
 
-void GE_SourceDataInitializeF(float *data) {
+void initFloat(float *data) {
   for ( int i = 0; i < SNR_SZ; i++ ) {
     data[i] = 0.0;
   }
@@ -45,14 +51,14 @@ void getTempArray(float *thermistorTemp, float *pixelsTemp) {
   short g_shThsTemp = shAMG_PUB_TMP_ConvThermistor(aucThsBuf);
 
   short g_ashRawTemp[SNR_SZ];
-  GE_SourceDataInitialize(g_ashRawTemp);
+  initShort(g_ashRawTemp);
   vAMG_PUB_TMP_ConvTemperature64(aucTmpBuf, g_ashRawTemp);
   
   // Convert short values to float
   *thermistorTemp = fAMG_PUB_CMN_ConvStoF(g_shThsTemp);
   
-  GE_SourceDataInitializeF(pixelsTemp);
-  for ( int i = 0; i < SNR_SZ; i++ ) {
+  initFloat(pixelsTemp);
+  for (int i = 0; i < SNR_SZ; i++) {
     pixelsTemp[i] = fAMG_PUB_CMN_ConvStoF(g_ashRawTemp[i]);
   }
 }
@@ -60,8 +66,17 @@ void getTempArray(float *thermistorTemp, float *pixelsTemp) {
 void serialPrint(float thermistorTemp, float *pixelsTemp) {
   Serial.print(thermistorTemp);
   Serial.print(" | ");
-  for( int i = 0; i < SNR_SZ; i++ ) {
+  for(int i = 0; i < SNR_SZ; i++) {
     Serial.print(pixelsTemp[i]);
+    Serial.print(" ");
+  }
+  Serial.print("\r\n");
+}
+
+void serialPrintBool(bool *arr) {
+  Serial.print("      | ");
+  for(int i = 0; i < SNR_SZ; i++) {
+    Serial.print(arr[i]);
     Serial.print(" ");
   }
   Serial.print("\r\n");
@@ -78,7 +93,8 @@ void setup() {
   delay(1000);
   
   Serial.begin(57600);
-  while (status != WL_CONNECTED) {
+
+  /*while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
@@ -86,20 +102,45 @@ void setup() {
     Serial.println(status);
 
     // wait 10 seconds for connection:
-    delay(5000);
+    delay(10000);
   }
-  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");*/
   //printWifiStatus();
-  delay(5000); // give time to physically attach grideye to arduino before starting program
-  Serial.println("\nDelay end");
-  
-  // Get Average Temperature for each Pixel for 1 minute (store in global variable)
-  /*for( int i = 0; i < 60; i++ ) {
-    delay(1000);
-  }*/
+
+  // delay(10000); // give time to physically attach grideye to arduino and open serial before starting program
+  // Serial.println("\nDelay end");
 
   GE_GridEyeSensor.init(0);
+
+  initFloat(averageTemp);
+  Serial.println("Initial average temps (should all be 0.0)");
+  serialPrint(0.0, averageTemp);
+
+  Serial.println("Starting average temperature initialisation");
   
+  // Get Average Temperature for each Pixel for 1 minute (store in global variable)
+  for(int i = 0; i < INIT_TIME; i++) {
+    float thermistorTemp; 
+    float pixelsTemp[SNR_SZ];
+    getTempArray(&thermistorTemp, pixelsTemp);
+    
+    serialPrint(thermistorTemp, pixelsTemp);
+    //sendPacket(pixelsTemp);
+  
+    for(int j = 0; j < SNR_SZ; j++) {
+      averageTemp[j] = averageTemp[j] + pixelsTemp[j]; 
+    }
+    
+    delay(MAIN_DELAY);
+  }
+
+  for(int i = 0; i < SNR_SZ; i++) {
+    averageTemp[i] = averageTemp[i] / INIT_TIME;
+  }
+
+  Serial.println("Average temperature initialised");
+  serialPrint(0.0, averageTemp);
+  Serial.println("Running in regular mode");
 }
 
 void loop() {
@@ -109,16 +150,24 @@ void loop() {
   float thermistorTemp; 
   float pixelsTemp[SNR_SZ];
   getTempArray(&thermistorTemp, pixelsTemp);
-  
-  // Print to Serial
   serialPrint(thermistorTemp, pixelsTemp);
-  sendPacket(pixelsTemp);
-  // Check each pixel whether it is above temperature threshold 
-
+  
+  // Check each pixel whether it is above temperature threshold
+  boolean pixelsThreshold[SNR_SZ];
+  for(int i = 0; i < SNR_SZ; i++) {
+    if(pixelsTemp[i] > averageTemp[i] + TEMP_THRESHOLD) {
+      pixelsThreshold[i] = true;
+    } else {
+      pixelsThreshold[i] = false;
+    }
+  }
+  serialPrintBool(pixelsThreshold);
+  
   // Count no. of pixels above temperature threshold, if it is above 'lift is full' threshold
 
   // Send data to Raspberry Pi (Amir/Sam's code)
+  // sendPacket(pixelsTemp);
 
   // Main delay (update frequency)
-  delay(1000);
+  delay(MAIN_DELAY);
 }

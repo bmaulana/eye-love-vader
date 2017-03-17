@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
-
+#include <string.h>
 
 WiFiUDP Udp;
 void int2char(float num, char *hello){
@@ -24,16 +24,17 @@ void int2char(float num, char *hello){
 void float2string(char *x,float *y){
   for (int a=0;a<64;a++){
     char hello[6];
-      int2char(y[a],hello);
-      strcat(x,hello);
+    int2char(y[a],hello);
+    strcat(x,hello);
   }
-  
+ // Serial.println(x);
 }
 
 void sendPacket(float *y){
-    char string[384];
+    //char string[384];
+    //float2string(string,y);
     Udp.beginPacket("10.0.0.1", 80);
-    Udp.write(string);
+    Udp.write("jrllo");
     Udp.endPacket();
 }
 
