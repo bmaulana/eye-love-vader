@@ -49,6 +49,16 @@ void getTempArray(float *thermistorTemp, float *pixelsTemp) {
   }
 }
 
+void serialPrint(float thermistorTemp, float *pixelsTemp) {
+  Serial.print(thermistorTemp);
+  Serial.print(" | ");
+  for( int i = 0; i < SNR_SZ; i++ ) {
+    Serial.print(pixelsTemp[i]);
+    Serial.print(" ");
+  }
+  Serial.print("\r\n");
+}
+
 /*******************************************************************************
   arduino
  ******************************************************************************/
@@ -81,15 +91,8 @@ void loop() {
   getTempArray(&thermistorTemp, pixelsTemp);
   
   // Print to Serial
-  Serial.print("*** ");
-  Serial.print(thermistorTemp);
-  Serial.print(" | ");
-  for( int i = 0; i < SNR_SZ; i++ ) {
-    Serial.print(pixelsTemp[i]);
-    Serial.print(" ");
-  }
-  Serial.print("\r\n");
-
+  serialPrint(thermistorTemp, pixelsTemp);
+  
   // Check each pixel whether it is above temperature threshold 
 
   // Count no. of pixels above temperature threshold, if it is above 'lift is full' threshold
