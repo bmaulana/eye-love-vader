@@ -73,8 +73,9 @@ void serialPrint(float thermistorTemp, float *pixelsTemp) {
   Serial.print("\r\n");
 }
 
-void serialPrintBool(bool *arr) {
-  Serial.print("      | ");
+void serialPrintBool(int ctr, bool *arr) {
+  Serial.print(ctr);
+  Serial.print(" | ");
   for(int i = 0; i < SNR_SZ; i++) {
     Serial.print(arr[i]);
     Serial.print(" ");
@@ -154,20 +155,25 @@ void loop() {
   
   // Check each pixel whether it is above temperature threshold
   boolean pixelsThreshold[SNR_SZ];
+  int aboveThreshold = 0;
   for(int i = 0; i < SNR_SZ; i++) {
     if(pixelsTemp[i] > averageTemp[i] + TEMP_THRESHOLD) {
       pixelsThreshold[i] = true;
+      aboveThreshold++;
     } else {
       pixelsThreshold[i] = false;
     }
   }
-  serialPrintBool(pixelsThreshold);
-  
-  // Count no. of pixels above temperature threshold, if it is above 'lift is full' threshold
+  serialPrintBool(aboveThreshold, pixelsThreshold);
 
+  if(aboveThreshold >= PIXELS_THRESHOLD) {
+    Serial.println("Lift is full");
+  }
+  
   // Send data to Raspberry Pi (Amir/Sam's code)
   // sendPacket(pixelsTemp);
 
   // Main delay (update frequency)
   delay(MAIN_DELAY);
+  // TODO poll 10x per second and use rolling average of temperature in main loop
 }
