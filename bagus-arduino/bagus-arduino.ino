@@ -1,11 +1,19 @@
 #include <Wire.h>
 #include "Arduino.h"
 #include "grideye.h"
+#include "Send.h"
+#include <SPI.h>
+#include <WiFi.h>
+#include <WiFiUdp.h>
 
 /*******************************************************************************
   variable value definition
 *******************************************************************************/
 grideye  GE_GridEyeSensor;
+
+int status = WL_IDLE_STATUS;
+char ssid[] = "pi"; //  your network SSID (name)
+char pass[] = "amirdhada";    // your network password (use for WPA, or use as key for WEP)
 
 /*******************************************************************************
   methods
@@ -70,7 +78,18 @@ void setup() {
   delay(1000);
   
   Serial.begin(57600);
+  while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+    status = WiFi.begin(ssid,pass);
+    Serial.println(status);
 
+    // wait 10 seconds for connection:
+    delay(5000);
+  }
+  Serial.println("Connected to wifi");
+  //printWifiStatus();
   delay(5000); // give time to physically attach grideye to arduino before starting program
   Serial.println("\nDelay end");
   
@@ -80,6 +99,7 @@ void setup() {
   }*/
 
   GE_GridEyeSensor.init(0);
+  
 }
 
 void loop() {
@@ -92,7 +112,7 @@ void loop() {
   
   // Print to Serial
   serialPrint(thermistorTemp, pixelsTemp);
-  
+  sendPacket(pixelsTemp);
   // Check each pixel whether it is above temperature threshold 
 
   // Count no. of pixels above temperature threshold, if it is above 'lift is full' threshold
