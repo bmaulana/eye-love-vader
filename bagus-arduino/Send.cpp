@@ -19,6 +19,9 @@ void int2char(float num, char *hello){
   hello[3]=test+'0';
   hello[4] = num+'0';
   hello[5]=',';
+  hello[6]='\0';
+  //Serial.print(hello);
+  //return "boo";
 }
 
 void float2string(char *x,float *y){
@@ -27,15 +30,18 @@ void float2string(char *x,float *y){
     int2char(y[a],hello);
     strcat(x,hello);
   }
- // Serial.println(x);
+ Serial.println(x);
 }
 
 void sendPacket(float *y){
-    //char string[384];
-    //float2string(string,y);
+    char string[384];
+    //strcat(string,"test ");
+    float2string(string,y);
+    Serial.println(string);
     Udp.beginPacket("10.0.0.1", 80);
-    Udp.write("jrllo");
+    Udp.write(string, 384);
     Udp.endPacket();
+    Serial.println();
 }
 
 

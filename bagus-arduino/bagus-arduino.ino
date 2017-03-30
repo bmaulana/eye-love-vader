@@ -10,7 +10,7 @@
   variable value definition
 *******************************************************************************/
 #define   MAIN_DELAY        1000
-#define   INIT_TIME         60
+#define   INIT_TIME         30
 #define   TEMP_THRESHOLD    5.0
 #define   PIXELS_THRESHOLD  32
 
@@ -95,7 +95,7 @@ void setup() {
   
   Serial.begin(57600);
 
-  /*while (status != WL_CONNECTED) {
+  while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
@@ -105,7 +105,7 @@ void setup() {
     // wait 10 seconds for connection:
     delay(10000);
   }
-  Serial.println("Connected to wifi");*/
+  Serial.println("Connected to wifi");
   //printWifiStatus();
 
   // delay(10000); // give time to physically attach grideye to arduino and open serial before starting program
@@ -126,7 +126,7 @@ void setup() {
     getTempArray(&thermistorTemp, pixelsTemp);
     
     serialPrint(thermistorTemp, pixelsTemp);
-    //sendPacket(pixelsTemp);
+    sendPacket(pixelsTemp);
   
     for(int j = 0; j < SNR_SZ; j++) {
       averageTemp[j] = averageTemp[j] + pixelsTemp[j]; 
@@ -171,7 +171,7 @@ void loop() {
   }
   
   // Send data to Raspberry Pi (Amir/Sam's code)
-  // sendPacket(pixelsTemp);
+   sendPacket(pixelsTemp);
 
   // Main delay (update frequency)
   delay(MAIN_DELAY);
