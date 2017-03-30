@@ -124,9 +124,7 @@ void setup() {
     float thermistorTemp; 
     float pixelsTemp[SNR_SZ];
     getTempArray(&thermistorTemp, pixelsTemp);
-    
     serialPrint(thermistorTemp, pixelsTemp);
-    sendPacket(pixelsTemp);
   
     for(int j = 0; j < SNR_SZ; j++) {
       averageTemp[j] = averageTemp[j] + pixelsTemp[j]; 
@@ -171,9 +169,10 @@ void loop() {
   }
   
   // Send data to Raspberry Pi (Amir/Sam's code)
-   sendPacket(pixelsTemp);
+   sendPacketInt(aboveThreshold, 80);
 
   // Main delay (update frequency)
   delay(MAIN_DELAY);
   // TODO poll 10x per second and use rolling average of temperature in main loop
 }
+

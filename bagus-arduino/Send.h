@@ -1,1 +1,3 @@
-void sendPacket(float*);
+void sendPacketFloatArray(float*);
+void sendPacketInt(int, int);
+

@@ -186,3 +186,4 @@ void	vAMG_PUB_BGT_UpdateBackTemp( USHORT, UCHAR*, short*, short* );
 #endif
 
 #endif /* GRIDEYE_H_ */
+

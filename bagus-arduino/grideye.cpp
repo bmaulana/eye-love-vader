@@ -1344,3 +1344,4 @@ BOOL bAMG_PUB_OUT_CalcOutImage_f( UCHAR ucImgWidth, UCHAR ucImgHeight, UCHAR ucO
 //! @}
 //
 //*****************************************************************************
+

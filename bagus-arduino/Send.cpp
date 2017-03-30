@@ -33,13 +33,23 @@ void float2string(char *x,float *y){
  Serial.println(x);
 }
 
-void sendPacket(float *y){
+void sendPacketFloatArray(float *y){
     char string[384];
     //strcat(string,"test ");
     float2string(string,y);
     Serial.println(string);
     Udp.beginPacket("10.0.0.1", 80);
-    Udp.write(string, 384);
+    Udp.write(string);
+    Udp.endPacket();
+    Serial.println();
+}
+
+void sendPacketInt(int i, int port){
+    char string[2]; // max int = 10 digits long
+    sprintf(string,"%i",i);
+    Serial.println(string);
+    Udp.beginPacket("10.0.0.1", port);
+    Udp.write(string);
     Udp.endPacket();
     Serial.println();
 }
