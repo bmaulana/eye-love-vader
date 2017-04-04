@@ -166,7 +166,7 @@ void loop() {
   }
   
   // Send data to Raspberry Pi (Amir/Sam's code)
-   sendPacketInt(aboveThreshold, 80);
+  sendPacketInt(aboveThreshold, 80);
 
   // Main delay (update frequency)
   delay(MAIN_DELAY);

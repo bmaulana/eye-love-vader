@@ -35,12 +35,33 @@
 int movingAvg[movingAvgLen] = {0};
 int toSend = 0;
 
+// wifi
+#include <SPI.h>
+#include <WiFi.h>
+#include <WiFiUdp.h>
+#include "Send.h"
+int status = WL_IDLE_STATUS;
+char ssid[] = "pi"; //  your network SSID (name)
+char pass[] = "amirdhada";    // your network password (use for WPA, or use as key for WEP)
+
 void setup() {
   Serial.begin(57600);
 
-  //TODO connect to Pi using Amir's code
+  // TODO connect to Pi using Amir's code
+  while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+    status = WiFi.begin(ssid,pass);
+    Serial.println(status);  // should be 3
+
+    // wait 10 seconds for connection:
+    delay(10000);
+  }
+  Serial.println("Connected to wifi");
+  //printWifiStatus();
   
-  // wait until it stabilises
+  // wait until sensor stabilises
   while(true){
     int avg = 0;
     for(int i = 0; i < 5; i++){
@@ -98,7 +119,7 @@ void loop() {
   }
  
   // TODO send data over to Raspberry Pi using Amir's code
-  
+  sendPacketInt(toSend, 81);
 
   for(int i = 0; i < movingAvgLen; i++){
     movingAvg[i] = movingAvg[i+1];
