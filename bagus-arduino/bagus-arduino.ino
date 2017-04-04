@@ -108,9 +108,6 @@ void setup() {
   Serial.println("Connected to wifi");
   //printWifiStatus();
 
-  // delay(10000); // give time to physically attach grideye to arduino and open serial before starting program
-  // Serial.println("\nDelay end");
-
   GE_GridEyeSensor.init(0);
 
   initFloat(averageTemp);
